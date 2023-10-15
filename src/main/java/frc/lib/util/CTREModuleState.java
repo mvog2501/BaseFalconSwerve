@@ -14,14 +14,20 @@ public class CTREModuleState {
    * @param currentAngle The current module angle.
    */
   public static SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle) {
-    double targetAngle = placeInAppropriate0To360Scope(currentAngle.getDegrees(), desiredState.angle.getDegrees());
+    double targetAngle = desiredState.angle.getDegrees();
     double targetSpeed = desiredState.speedMetersPerSecond;
-    double delta = targetAngle - currentAngle.getDegrees();
-    if (Math.abs(delta) > 90){
+    if (shouldReverse(Rotation2d.fromDegrees(targetAngle), currentAngle)) {
         targetSpeed = -targetSpeed;
-        targetAngle = delta > 90 ? (targetAngle -= 180) : (targetAngle += 180);
-    }        
+        targetAngle += 180.0;
+    }
+    targetAngle = placeInAppropriate0to360Scope(currentAngle.getDegrees(), targetAngle);
     return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle));
+  }
+
+  private static boolean shouldReverse(Roation2d targetAngle, Rotation2d currentAngle) {
+      double angleDifference = Math.abs(goalAngle.distance(currentAngle));
+      double reverseAngleDifference = Math.abs(goalAngle.distance(currentAngle.rotateBy(Rotation2d.fromDegrees(180.0))));
+      return reverseAngleDifference < angleDifference;
   }
 
   /**
